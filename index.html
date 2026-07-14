@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بانک جامع تست آمنوره (نواک و اسپیروف)</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            },
+            svg: { fontCache: 'global' },
+            startup: { typeset: false } // We will manually typeset after DOM updates
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+
+    <style>
+        body {
+            font-family: 'Vazirmatn', sans-serif;
+            background-color: #f0f4f8;
+        }
+        .option-card {
+            transition: all 0.2s ease;
+        }
+        .option-card:hover:not(.disabled) {
+            background-color: #e2e8f0;
+            border-color: #cbd5e1;
+            cursor: pointer;
+            transform: translateY(-1px);
+        }
+        .selected-option {
+            background-color: #eff6ff !important;
+            border-color: #3b82f6 !important;
+            box-shadow: 0 0 0 1px #3b82f6;
+        }
+        .correct-option {
+            background-color: #ecfdf5 !important;
+            border-color: #10b981 !important;
+            color: #064e3b !important;
+        }
+        .wrong-option {
+            background-color: #fef2f2 !important;
+            border-color: #ef4444 !important;
+            color: #7f1d1d !important;
+        }
+        .disabled {
+            cursor: default !important;
+        }
+        .explanation-box ul {
+            list-style-type: disc;
+            margin-right: 1.5rem;
+            margin-top: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .explanation-box li {
+            margin-bottom: 0.5rem;
+            line-height: 1.7;
+        }
+        .explanation-box strong {
+            color: #1e40af;
+        }
+    </style>
+</head>
+<body class="text-slate-800 antialiased min-h-screen flex flex-col">
+
+    <header class="bg-slate-900 text-white shadow-lg py-5 sticky top-0 z-50">
+        <div class="max-w-5xl mx-auto px-4 md:px-6 flex justify-between items-center">
+            <h1 class="text-xl md:text-2xl font-bold tracking-tight">بانک جامع تست آمنوره</h1>
+            <span class="text-xs md:text-sm bg-blue-600 px-3 py-1.5 rounded-md font-medium">نواک ۲۰۲۵ & اسپیروف ۲۰۲۰</span>
+        </div>
+    </header>
+
+    <main class="flex-grow w-full max-w-5xl mx-auto px-4 md:px-6 py-8">
+        <div class="bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden relative min-h-[400px]">
+            
+            <div class="p-6 md:p-10">
+                <!-- Header of Question -->
+                <div class="flex justify-between items-center border-b border-slate-100 pb-5 mb-6">
+                    <h2 id="q-title" class="text-xl font-bold text-slate-800">سؤال ۱</h2>
+                    <div class="flex items-center gap-2">
+                        <span class="text-sm text-slate-500 font-medium">پیشرفت:</span>
+                        <span id="q-counter" class="text-sm bg-slate-100 text-slate-700 px-3 py-1 rounded-full font-bold">۱ / ۲۴</span>
+                    </div>
+                </div>
+
+                <!-- Question Text -->
+                <div id="q-text" class="text-lg md:text-xl leading-loose mb-8 font-medium text-slate-700 text-justify">
+                    <!-- Text will be injected -->
+                </div>
+
+                <!-- Options -->
+                <div id="q-options" class="space-y-3 mb-8">
+                    <!-- Options will be injected -->
+                </div>
+
+                <!-- Submit Button -->
+                <div class="flex justify-center mb-8">
+                    <button id="btn-submit" onclick="submitAnswer()" class="bg-blue-600 hover:bg-blue-700 text-white text-lg font-bold py-3 px-12 rounded-xl shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed transform hover:-translate-y-0.5">
+                        ثبت پاسخ و مشاهده پاسخنامه
+                    </button>
+                </div>
+
+                <!-- Explanation Area -->
+                <div id="q-explanation" class="hidden bg-slate-50 border border-slate-200 rounded-xl p-6 md:p-8 mb-4">
+                    <h3 class="font-bold text-lg text-slate-800 mb-4 border-b border-slate-200 pb-3 flex items-center gap-2">
+                        <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        پاسخنامه و تشریح بالینی
+                    </h3>
+                    <div id="explanation-text" class="explanation-box text-base text-slate-700 text-justify leading-relaxed">
+                        <!-- Explanation will be injected -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Navigation -->
+            <div class="bg-slate-50 px-6 py-4 border-t border-slate-100 flex justify-between items-center">
+                <button id="btn-prev" onclick="prevQuestion()" class="flex items-center gap-2 text-slate-600 hover:text-blue-600 font-bold py-2 px-4 rounded-lg hover:bg-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path></svg>
+                    سؤال قبلی
+                </button>
+                <button id="btn-next" onclick="nextQuestion()" class="flex items-center gap-2 bg-slate-200 hover:bg-blue-100 text-slate-700 hover:text-blue-700 font-bold py-2 px-6 rounded-lg transition-colors disabled:opacity-30 disabled:cursor-not-allowed">
+                    سؤال بعدی
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"></path></svg>
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const questions = [
+            {
+                title: "سؤال ۱",
+                text: "خانم ۲۷ ساله‌ای که یک سال قبل میومکتومی شده، با شکایت هایپومنوآر (هیپومنوره) و بدنبال آن آمنوره مراجعه کرده است. آزمایش بارداری منفی و $FSH=2$، $TSH=2.7$ و $Prolactin=10$ می‌باشد. بیمار با تجویز قرص sequential استروژن کونژوگه ۱/۲۵ میلی‌گرم برای ۲۵ روز و مدروکسی پروژسترون $10 \\text{ mg}$ برای ۷ روز آخر هم قاعده نشده است. بهترین اقدام کدام است؟",
+                options: [
+                    "الف) تجویز استروژن و پروژسترون با دوز بیشتر",
+                    "ب) MRI هیپوفیز",
+                    "ج) کاریوتایپ",
+                    "د) هیستروسکوپی"
+                ],
+                correctIndex: 3,
+                explanation: `<ul>
+                    <li>بیمار به دنبال جراحی قبلی رحم (میومکتومی) دچار آمنوره ثانویه شده و به تست چالش استروژن-پروژسترون ترکیبی پاسخ نداده است (منس نشده است).</li>
+                    <li>این عدم وقوع خونریزی محرومیت پس از هورمون‌تراپی ترکیبی، نشان‌دهنده وجود نقص ساختاری در اندومتر یا انسداد شدید در مسیر خروجی رحم است که به شدت تشخیص <strong>سندرم آشرمن</strong> (چسبندگی داخل رحمی) را مطرح می‌سازد.</li>
+                    <li>استاندارد طلایی تشخیصی و درمانی برای اثبات وجود چسبندگی‌ها و برطرف کردن همزمان آن‌ها تحت دید مستقیم، انجام <strong>هیستروسکوپی</strong> است. افزایش دوز هورمون در بافت تخریب شده اثری ندارد.</li>
+                </ul>`
+            },
+            {
+                title: "سؤال ۲",
+                text: "دختر خانم ۱۸ ساله با سابقه آمنوره اولیه و شکایت اخیر لکه‌بینی مراجعه می‌کند. بیمار بر اساس فنوتیپ ظاهر ترنر دارد. مناسب‌ترین اقدام کدام است؟",
+                options: [
+                    "الف) بررسی از نظر مصرف دارو",
+                    "ب) بررسی کروموزومی از نظر موزائیسم",
+                    "ج) سونوگرافی رحم و تخمدان",
+                    "د) MRI شکم و لگن"
+                ],
+                correctIndex: 1,
+                explanation: `<ul>
+                    <li>به طور کلاسیک، بیماران مبتلا به سندرم ترنر به دلیل نارسایی زودرس تخمدان و دیسژنزی گنادی (Streak Gonads)، فاقد ترشح استروژن درون‌زاد کافی برای تکامل اندومتر و قاعدگی هستند.</li>
+                    <li>بروز لکه‌بینی خودبه‌خودی غیرمنتظره در این افراد، نشان‌دهنده فعالیت هورمونی تخمدانی حداقلی است که به علت <strong>پدیده موزائیسم کروموزومی</strong> (مانند وجود لاین سلولی نرمال $46,\\text{XX}$ در کنار $45,\\text{X}$) رخ می‌دهد.</li>
+                    <li>از این رو، ارزیابی کاریوتایپ با تعداد سلول‌های بیشتر جهت شناسایی این موزائیسم ضرورت بالایی دارد.</li>
+                </ul>`
+            },
+            {
+                title: "سؤال ۳",
+                text: "دختر خانم ۱۶ ساله با آمنوره اولیه و بدون بروز صفات ثانویه جنسی مراجعه کرده است. در آزمایشات $FSH=35 \\text{ IU/L}$ و کاریوتایپ $45,\\text{XO}$ و گزارش اکوکاردیوگرافی بیمار Bicuspid Aortic valve را نشان می‌دهد. توصیه مناسب کدام است؟",
+                options: [
+                    "الف) سونوگرافی کلیه و مجاری ادراری",
+                    "ب) انجام اکوکاردیوگرافی هر ۵ سال",
+                    "ج) هورمون تراپی ابتدا با استروژن به تنهایی و پس از ۱۲-۲۴ ماه اضافه نمودن پروژسترون به آن",
+                    "د) Audiometry سالانه در صورت نرمال بودن شنوایی"
+                ],
+                correctIndex: 2,
+                explanation: `<ul>
+                    <li>در دختران نوجوان مبتلا به سندرم ترنر که با آمنوره اولیه و عدم رشد صفات ثانویه جنسی مراجعه می‌کنند، هورمون‌تراپی جایگزین (HRT) باید در وهله اول <strong>تنها با استروژن با دوز بسیار پایین</strong> آغاز گردد.</li>
+                    <li>اضافه نمودن پروژسترون به رژیم درمانی باید حداقل ۱۲ تا ۲۴ ماه (یا تا زمان دستیابی به بلوغ کامل سینه‌ها و بروز اولین لکه‌بینی‌ها) به تعویق بیفتد.</li>
+                    <li>مواجهه زودرس با پروژسترون قبل از تکامل مجاری پستان توسط استروژن، منجر به تشکیل <strong>سینه‌های لوله‌ای (Tubular breasts)</strong> نامطلوب و مهار تکامل بهینه بافت پستان می‌شود.</li>
+                </ul>`
+            },
+            {
+                title: "سؤال ۴",
+                text: "دختر خانم ۱۶ ساله بدلیل آمنوره اولیه ارجاع شده است. در بررسی‌های انجام شده دارای واژن، سرویکس، رحم، لوله‌های فالوپ می‌باشد، گناد نواری گزارش شده اند، کاریوتیپ وی $46,\\text{XY}$ می‌باشد، مناسب‌ترین اقدام کدام است؟",
+                options: [
+                    "الف) توصیه به باروری آینده با تخمک اهدایی",
+                    "ب) تجویز استروژن و پروژسترون",
+                    "ج) تجویز آندروژن ها",
+                    "د) انجام گونادکتومی در اسرع وقت"
+                ],
+                correctIndex: 3,
+                explanation: `<ul>
+                    <li>این بیمار مبتلا به دیسژنزی خالص گنادی با کاریوتایپ $46,\\text{XY}$ (<strong>سندرم سویر Swyer</strong>) است.</li>
+                    <li>گنادهای نواری (Streak Gonads) در حضور کروموزوم $Y$ به شدت مستعد تحولات نئوپلاستی و تومورال لگنی (مانند گنادوبلاستوما و دیس‌ژرمینوم) هستند، به طوری که خطر بروز بدخیمی در این گنادها حدود ۳۰٪ تخمین زده می‌شود.</li>
+                    <li>لذا، به منظور حفظ جان بیمار، خارج کردن سریع گنادها با جراحی (<strong>گونادکتومی</strong>) در اولین زمان پس از تشخیص الزامی است. بیمار پس از جراحی تحت درمان با استروژن جهت القای بلوغ قرار می‌گیرد.</li>
+                </ul>`
+            },
+            {
+                title: "سؤال ۵",
+                text: "دختر ۱۶ ساله بدلیل عدم منارک با والدین به کلینیک مراجعه کرده. قد ۱۶۰، وزن ۵۳ کیلو. در معاینه رشد پستانها B4 و موهای پوبیس T3 و معاینه شکم نرمال است. شکایت خاصی ندارد. محتملترین تشخیص کدامیک است؟",
+                options: [
+                    "الف) آزنزی مولرین",
+                    "ب) سندروم ترنر",
+                    "ج) عدم حساسیت به آندروژن",
+                    "د) Imperforate Hymen"
+                ],
+                correctIndex: 0,
+                explanation: `<ul>
+                    <li>رشد طبیعی پستان‌ها (تانر ۴) نشان‌دهنده ترشح کافی استروژن است و عللی مانند سندرم ترنر را رد می‌کند.</li>
+                    <li>حضور موهای پوبیس نرمال (تانر ۳) تشخیص سندرم عدم حساسیت کامل به آندروژن (AIS) را که در آن موی زهار بسیار اندک است، رد می‌کند.</li>
+                    <li>در یک دختر با قد و وزن نرمال، بلوغ ثانویه کامل و آمنوره اولیه، محتمل‌ترین علت <strong>آژنزی مجاری مولرین (سندرم مایر-راکیتانسکی)</strong> است که مشخصه آن فقدان رحم در حضور واژن کوتاه و تخمدان‌های سالم است.</li>
+                </ul>`
+            },
+            {
+                title: "سؤال ۶",
+                text: "خانم ۳۲ ساله با نازایی دو ساله و آمنوره مراجعه کرده است. در آزمایشات TSH و پرولاکتین نرمال است. $FSH=4 \\text{ IU/L}$ و استرادیول $20 \\text{ pg/mL}$ میباشد. اسپرم آنالیز نرمال است. تجویز کدام یک از داروهای زیر صحیح است؟",
+                options: [
+                    "الف) کلومیفن",
+                    "ب) لتروزول",
+                    "ج) متفورمین",
+                    "د) گنادوتروپین"
+                ],
+                correctIndex: 3,
+                explanation: `<ul>
+                    <li>بیمار در دسته هیپوگنادیسم هیپوگنادوتروپیک (آمنوره هایپوتالاموسی - WHO Group 1) قرار دارد که با FSH طبیعی متمایل به پایین و استرادیول بسیار سرکوب‌شده مشخص می‌شود.</li>
+                    <li>داروهای محرک خوراکی مانند کلومیفن و لتروزول به دلیل نیاز مبرم به بازخورد مثبت در محور فعال هیپوفیز-هیپوتالاموس، در این بیماران فاقد اثربخشی پایدار هستند.</li>
+                    <li>درمان انتخابی و تاییدشده برای القای رشد فولیکولی در این گروه، تجویز مستقیم <strong>گنادوتروپین‌های اگزوژن</strong> (حاوی FSH و LH) می‌باشد.</li>
+                </ul>`
+            },
+            {
+                title: "سؤال ۷",
+                text: "در خانم ۲۷ سالهای با سابقه پرولاکتینمی که سطح استروژن و FSH بسیار پایین میباشد و خواهان حاملگی تک قلویی میباشد. کدام یک از روشهای زیر ارجح است؟",
+                options: [
+                    "الف) In vitro fertilization",
+                    "ب) Recombinant Gondotropin",
+                    "ج) GnRH low dose Pulsatile",
+                    "د) Aromatase Inhibitor"
+                ],
+                correctIndex: 2,
+                explanation: `<ul>
+                    <li>در زنان مبتلا به آمنوره هایپوتالاموسی و هیپوگنادوتروپیک (یا هایپرپرولاکتینمی مقاوم به آگونیست‌های دوپامین) که خواهان حاملگی تک‌قلویی ایمن هستند، <strong>پمپ ضربانی GnRH با دوز پایین</strong> ایمن‌ترین و فیزیولوژیک‌ترین روش است.</li>
+                    <li>این پروسیجر به صورت فیزیولوژیک سیگنال‌های هیپوتالاموسی را بازسازی کرده و با القای رشد همگن و تک‌فولیکولی، ریسک وقوع بارداری چندقلویی و سندروم تحریک بیش از حد تخمدان (OHSS) را به شدت کاهش می‌دهد.</li>
+                </ul>`
+            },
+            {
+                title: "سؤال ۸",
+                text: "فردی به دنبال پرخوری عصبی (Bulimia) دچار آمنوره گردیده است. کدامیک از اختلالات اندوکرین را در وی انتظار دارید؟",
+                options: [
+                    "الف) افزایش TSH",
+                    "ب) پرولاکتین بالا",
+                    "ج) کاهش سطح کورتیزول",
+                    "د) افزایش T3 معکوس (rT3)"
+                ],
+                correctIndex: 3,
+                explanation: `<ul>
+                    <li>اختلالات تغذیه‌ای شدید نظیر بی‌اشتهایی عصبی و پرخوری عصبی با ایجاد استرس متابولیک شدید، ترشح ضربانی GnRH را مهار کرده و منجر به آمنوره مادری می‌شوند.</li>
+                    <li>پیامدهای هورمونی شامل کاهش سطح گنادوتروپین‌ها و استرادیول همراه با افزایش چشمگیر کورتیزول سرم است.</li>
+                    <li>به دلیل پاسخ حفاظتی بدن برای کاهش اتلاف انرژی، هورمون T3 کاهش یافته و غلظت <strong>T3 معکوس (rT3)</strong> که هورمونی غیرفعال است به شدت افزایش می‌یابد. پرولاکتین و TSH نرمال می‌مانند.</li>
+                </ul>`
+            },
+            {
+                title: "سؤال ۹",
+                text: "دختری ۱۶ ساله با شکایت آمنوره اولیه، عدم نمو پستان ها و علائم هیپرآندروژنیسم و ویریلیزاسیون در موقع بلوغ مراجعه کرده است. آزمایشات پرولاکتین و TSH نرمال، FSH بالا و استرادیول پایین می باشد. نمای تخمدان ها مولتی کیستیک است. مادر وی در نیمه دوم بارداری دچار پرمویی شده که بعد از تولد بهبود یافته است. محتمل ترین تشخیص نقص کدام آنزیم است؟",
+                options: [
+                    "الف) Aromatase",
+                    "ب) 21-hydroxylase",
+                    "ج) P450 oxidoreductase",
+                    "د) 11B-Hydroxy steroid dehydrogenase"
+                ],
+                correctIndex: 0,
+                explanation: `<ul>
+                    <li>نقص ژنتیکی <strong>آنزیم آروماتاز</strong> (مسئول تبدیل نهایی آندروژن‌ها به استروژن در تخمدان و جفت) مانع از ساخت استروژن می‌شود.</li>
+                    <li>عدم تبدیل آندروژن‌های جنینی به استروژن در جفت، باعث ورود آندروژن به خون مادر و ایجاد هیرسوتیسم و ویریلیزاسیون گذرا در مادر حین بارداری می‌شود.</li>
+                    <li>در زمان بلوغ، ناتوانی مطلق در ساخت استروژن منجر به آمنوره اولیه، عدم نمو پستان‌ها و بالا رفتن فیدبکی FSH شده که منجر به نمای کاذب مولتی‌کیستیک تخمدان‌ها می‌گردد.</li>
+                </ul>`
+            },
+            {
+                title: "سؤال ۱۰",
+                text: "خانم ۱۸ ساله با شکایت از آمنوره اولیه و درد راجعه لگنی مراجعه کرده است. در معاینه انجام شده انسداد کامل واژن مشاهده می شود. پروفایل هورمونی (FSH/LH و استرادیول) نرمال است. اقدام مناسب بعدی کدام است؟",
+                options: [
+                    "الف) لاپاراسکوپی",
+                    "ب) MRI",
+                    "ج) کارگذاری سوندفولی با تیپ فلزی",
+                    "د) کاریوتایپ"
+                ],
+                correctIndex: 1,
+                explanation: `<ul>
+                    <li>حضور آمنوره اولیه به همراه درد راجعه و دوره‌ای شکم در حضور پروفایل هورمونی نرمال، بیانگر انسداد آناتومیک مسیر خروجی (مانند پرده بکارت بدون سوراخ یا سپتوم عرضی واژن) و ایجاد هماتومترا است.</li>
+                    <li>برای ارزیابی دقیق ساختاری، تایید حضور دهانه رحم (سرویکس) و تعیین فاصله بین بافت مسدود پیش از هرگونه مداخله جراحی، انجام تصویربرداری <strong>MRI لگن</strong> ایمن‌ترین و ارجح‌ترین گام تشخیصی است.</li>
+                </ul>`
+            },
+            {
+                title: "سؤال ۱۱",
+                text: "خانم ۲۵ ساله با کاهش رزرو تخمدان ($AMH=0.3$) مراجعه کرده است. بیمار ذکر می کند که خواهرزاده وی نیز مبتلا به اوتیسم می باشد. در ارزیابی وی مناسب ترین اقدام کدام است؟",
+                options: [
+                    "الف) بررسی ژن FMR1",
+                    "ب) بررسی از نظر BMp15",
+                    "ج) بررسی از نظر آنتی بادی ضد آندومتریال",
+                    "د) بررسی 21-Hydroxylase antibodies"
+                ],
+                correctIndex: 0,
+                explanation: `<ul>
+                    <li>نارسایی زودرس تخمدان (POI) در سنین پایین می‌تواند ناشی از اختلال پیش‌جهش (Premutation) در ژن <strong>FMR1</strong> (سندرم ایکس شکننده) باشد.</li>
+                    <li>خانم‌های ناقل پیش‌جهش فاقد عقب‌ماندگی ذهنی بوده اما دچار یائسگی زودرس می‌شوند. در صورت انتقال الل معیوب به نسل بعدی (نوزاد پسر) با جهش کامل، علائم شدید اوتیسم متولد می‌شود.</li>
+                    <li>سابقه اوتیسم در خانواده (خواهرزاده)، ضرورت انجام این ارزیابی ژنتیکی را برای بیمار محرز می‌سازد.</li>
+                </ul>`
+            },
+            {
+                title: "سؤال ۱۲",
+                text: "خانم ۲۸ ساله ای با آمنوره و جواب آزمایش که مبنی بر وجود ماکروپرولاکتین $200 \\text{ ng/ml}$ می باشد مراجعه کرده است. بیمار شرح حالی از گالاکتوره ندارد. اقدام مناسب بعدی برای بیمار چیست؟",
+                options: [
+                    "الف) مخلوط کردن سرم بیمار با پلی اتیلن گلیکول (PEG) و تکرار آزمایش",
+                    "ب) درمان با کابرگولین",
+                    "ج) Brain MRI",
+                    "د) پروژسترون + درمان استروژن"
+                ],
+                correctIndex: 0,
+                explanation: `<ul>
+                    <li>ماکروپرولاکتین، پرولاکتین باند شده به کمپلکس‌های ایمونوگلوبولینی بزرگ است که قادر به عبور از عروق و اتصال به گیرنده‌های بافتی نبوده و فاقد اثر بیولوژیک (نظیر گالاکتوره یا آمنوره واقعی) است.</li>
+                    <li>با این حال، در کیت‌های آزمایشگاهی معمولی، سطح پرولاکتین را به طور کاذب بالا نشان می‌دهد.</li>
+                    <li>جهت سنجش غلظت واقعی پرولاکتین آزاد فعال، رسوب‌دهی با <strong>پلی‌اتیلن گلیکول (PEG)</strong> قبل از تکرار آزمایش استاندارد طلایی است تا از تجویز بیهوده دارو و MRI جلوگیری شود.</li>
+                </ul>`
+            },
+            {
+                title: "سؤال ۱۳",
+                text: "دختر ۱۷ ساله ای با شکایت آمنوره اولیه مراجعه کرده است. در معاینه بالینی موهای پوبیس نرمال می باشد. در آزمایشات $FSH=40$ و $E2=10$ می باشد. در سونوگرافی رحم نرمال ولی تخمدان ها رویت نشد و واژن نرمال است. کاریوتیپ $46,\\text{XY}$ گزارش شده است. اقدام مناسب بعدی کدام است؟",
+                options: [
+                    "الف) گونادکتومی",
+                    "ب) بررسی FMR1",
+                    "ج) MRI لگنی",
+                    "د) شروع HRT"
+                ],
+                correctIndex: 0,
+                explanation: `<ul>
+                    <li>در دختر نوجوان با آمنوره اولیه، هیپرگنادوتروپیک هیپوگنادیسم و کاریوتیپ مردانه ($46,\\text{XY}$)، تشخیص وجود نقص ژنتیکی دیسژنزی گنادی (سندرم سویر) است.</li>
+                    <li>حضور رحم نشان‌دهنده عدم ترشح هورمون ضد مولرین (AMH) توسط بیضه‌های تشکیل‌نشده است.</li>
+                    <li>گنادهای نواری نابالغ در این بیماران حاوی عناصر و کروموزوم Y هستند و خطر بالایی برای تحولات سرطان‌زا در حفره شکمی دارند. جراحی اورژانسی <strong>گونادکتومی</strong> گام اصلی و الزامی است.</li>
+                </ul>`
+            },
+            {
+                title: "سؤال ۱۴",
+                text: "خانم ۲۰ ساله با $BMI:39$ و اولیگومنوره مراجعه نموده است. در صورتیکه تشخیص اولیگو اووالسیون بدلیل چاقی و PCOS باشد، کدامیک از گزینه های زیر در مورد پاتوفیزیولوژی احتمالی ایشان نادرست است؟",
+                options: [
+                    "الف) افزایش استروژن محیطی",
+                    "ب) افزایش تستوسترون آزاد",
+                    "ج) کاهش انسولین",
+                    "د) کاهش sex hormone binding globulin (SHBG)"
+                ],
+                correctIndex: 2,
+                explanation: `<ul>
+                    <li>چاقی و PCOS با مقاومت شدید به انسولین و در نتیجه هایپرانسولینمی جبرانی (افزایش انسولین) گره خورده‌اند؛ بنابراین <strong>«کاهش انسولین»</strong> کاملاً نادرست است.</li>
+                    <li>انسولین بالا با اثر مستقیم بر کبد، ترشح پروتئین SHBG را کاهش داده و سطح تستوسترون آزاد خون را بالا می‌برد.</li>
+                    <li>افزایش استروژن ناشی از آروماتیزاسیون در بافت چربی محیطی، فیدبک منفی مداومی بر گنادوتروپین‌ها اعمال کرده و تخمک‌گذاری را مهار می‌کند.</li>
+                </ul>`
+            },
+            {
+                title: "سؤال ۱۵",
+                text: "خانم 37 ساله با آمنوره مراجعه کرده است. در آزمایشات $PRL=1.5$، $FSH=5$، استرادیول $20$ و تست حاملگی منفی میباشد و با مصرف قرص LD منس نشده است. کدام اقدام تشخیصی را برای بیمار انجام میدهید؟",
+                options: [
+                    "الف) MRI لگن",
+                    "ب) هیستروسکوپی",
+                    "ج) تست پروژسترون",
+                    "د) MRI مغز"
+                ],
+                correctIndex: 1,
+                explanation: `<ul>
+                    <li>منس نشدن بیمار پس از اتمام یک دوره قرص‌های ترکیبی (قرص LD حاوی استروژن و پروژسترون)، نشان‌دهنده وجود نقص جدی در دیواره آندومتر یا انسداد شدید مسیر خروجی است.</li>
+                    <li>با توجه به شک بالینی قوی به سندرم آشرمن (چسبندگی‌های داخل رحمی)، انجام <strong>هیستروسکوپی</strong> اولین و دقیق‌ترین اقدام تشخیصی برای ارزیابی آناتومی حفره آندومتر و درمان همزمان چسبندگی‌ها است.</li>
+                </ul>`
+            },
+            {
+                title: "سؤال ۱۶",
+                text: "خانم ۲۶ ساله با سابقه آدنوم هیپوفیز ۷ میلیمتری با آزمایش بارداری مثبت مراجعه نموده است. بیمار از ۱/۵ سال قبل تحت درمان با کابرگولین بوده و علامتی ندارد. اقدام مناسب کدام است؟",
+                options: [
+                    "الف) ادامه کابرگولین با دوز قبل بارداری",
+                    "ب) قطع کابرگولین و شروع مجدد در سه ماهه دوم بارداری",
+                    "ج) ادامه کابرگولین با نصف دوز قبلی",
+                    "د) قطع کابرگولین و بررسی پس از زایمان"
+                ],
+                correctIndex: 3,
+                explanation: `<ul>
+                    <li>در طول بارداری، غده هیپوفیز به صورت فیزیولوژیک بزرگ می‌شود. با این حال، خطر بزرگ شدن تهاجمی میکروآدنوم‌های هیپوفیز (سایز کمتر از ۱۰ میلی‌متر) در طول بارداری بسیار ناچیز (کمتر از ۲٪) است.</li>
+                    <li>بر اساس توصیه‌های علمی اسپیروف، پس از اثبات بارداری، درمان با آگونیست دوپامین (کابرگولین) باید <strong>قطع</strong> شود.</li>
+                    <li>ارزیابی مجدد سطح پرولاکتین سرم و تصویربرداری به پس از زایمان و اتمام دوران شیردهی موکول می‌گردد.</li>
+                </ul>`
+            },
+            {
+                title: "سؤال ۱۷",
+                text: "خانمی 30 ساله با ناباروری 2 ساله مراجعه کرده است. ارزیابیهای اولیه انجام شده و نتایج به شرح زیر است: $TSH = 0.07 \\ \\mu\\text{IU/mL}$ و T4 آزاد نرمال است. کدام اقدام صحیح است؟",
+                options: [
+                    "الف) درخواست T3 آزاد",
+                    "ب) شروع PTU",
+                    "ج) شروع متیمازول",
+                    "د) درخواست مجدد TSH"
+                ],
+                correctIndex: 0,
+                explanation: `<ul>
+                    <li>سطح TSH سرکوب‌شده (زیر ۰.۰۸) گام اول در شناسایی هایپرتیروئیدی است.</li>
+                    <li>در صورتی که سطح T4 آزاد نرمال باشد، <strong>اندازه‌گیری سطح T3 آزاد</strong> گام بعدی و ضروری است.</li>
+                    <li>این کار جهت شناسایی پرکاری تیروئید پنهان که در آن افزایش استروئیدهای تیروئیدی منحصراً با غلبه ترشح T3 رخ می‌دهد ($T3 \\text{ toxicosis}$) انجام می‌شود.</li>
+                </ul>`
+            },
+            {
+                title: "سؤال ۱۸",
+                text: "دختر خانم ۲۵ ساله با علایم پرمویی و اختلال در قاعدگی، مراجعه نموده است. از نظر بالینی کدامیک از تستهای زیر لازم است جهت تشخیص سیستمیک انجام شود؟",
+                options: [
+                    "الف) تستوسترون توتال سرم",
+                    "ب) تستوسترون آزاد سرم",
+                    "ج) DHEA سرم",
+                    "د) تست تحمل گلوکز خوراکی (Oral GTT)"
+                ],
+                correctIndex: 3,
+                explanation: `<ul>
+                    <li>بیمار با علائم هیرسوتیسم و اختلال قاعدگی، معیارهای بالینی سندرم تخمدان پلی‌کیستیک (PCOS) را داراست.</li>
+                    <li>با توجه به شیوع بالای مقاومت به انسولین و عدم تحمل گلوکز در بیماران PCOS، غربالگری اختلالات متابولیک الزامی است.</li>
+                    <li>انجام <strong>تست تحمل گلوکز خوراکی (Oral GTT)</strong> دقیق‌ترین روش بالینی جهت ارزیابی و پیشگیری از دیابت پنهان و بیماری‌های قلبی-عروقی همراه است.</li>
+                </ul>`
+            },
+            {
+                title: "سؤال ۱۹",
+                text: "خانم ۲۴ ساله با امتیاز ۱۵ در مقیاس فرایدمن گالوی (Ferriman-Gallwey score) مراجعه کرده است. پریودهای وی مرتب است و در بررسی آزمایشگاهی، تستوسترون توتال نرمال گزارش شده است. بهترین اقدام چیست؟",
+                options: [
+                    "الف) فیناستراید + OCP واجد سیپروترون استات",
+                    "ب) تجویز اسپیرونولاکتون به تنهایی",
+                    "ج) OCP واجد سیپروترون استات به تنهایی",
+                    "د) متفورمین + OCP واجد دروسپیرنون"
+                ],
+                correctIndex: 0,
+                explanation: `<ul>
+                    <li>امتیاز ۱۵ در مقیاس فریمن-گالوی نشان‌دهنده هیرسوتیسم شدید است.</li>
+                    <li>در بیمارانی که با وجود هیرسوتیسم شدید، دوره‌های قاعدگی مرتب و سطح آندروژن نرمال دارند (پاسخ‌دهی شدید گیرنده‌های محیطی)، مصرف OCP به تنهایی پاسخ درمانی کافی ایجاد نمی‌کند.</li>
+                    <li>درمان ترکیبی هورمونی به همراه یک مهارکننده قوی آنتی‌آندروژنی (مانند <strong>فیناستراید</strong>) به همراه <strong>OCP</strong> اثر هم‌افزایی داشته و منجر به نازک شدن موهای ترمینال می‌گردد.</li>
+                </ul>`
+            },
+            {
+                title: "سؤال ۲۰ (تالیفی)",
+                text: "خانم ۳۶ ساله‌ای به علت آندومتریوز و نازایی تحت درمان قرار گرفته و جهت انتقال جنین مراجعه نموده است. در مرحله اول ART، سرویکس استنوز (Cervical Stenosis) داشته و انتقال جنین (ET) به راحتی انجام نشده است. جهت انتقال راحت جنین در سیکل بعدی بهترین اقدام کدام است؟",
+                options: [
+                    "الف) ET زیر بیهوشی",
+                    "ب) دیلاتاسیون سرویکس قبل از شروع سیکل",
+                    "ج) تکنیک‌های ریلکسیشن",
+                    "د) آنتی‌بیوتیک‌تراپی قبل از شروع سیکل"
+                ],
+                correctIndex: 1,
+                explanation: `<ul>
+                    <li>عبور ترومازا و سخت کاتتر انتقال جنین از دهانه رحم تنگ، با القای ترشح موضعی پروستاگلاندین‌ها و ایجاد انقباضات شدید لایه‌های میومتر، لانهگزینی رویان را به شدت مختل می‌کند.</li>
+                    <li>بنابراین، انجام <strong>دیلاتاسیون دهانه رحم در سیکل قبل از انتقال</strong> الزامی است تا مسیر عبور کاتتر در سیکل اصلی کاملاً بدون تروما باشد.</li>
+                    <li><strong>تله طراح:</strong> انتقال زیر بیهوشی انقباضات ناشی از تروما را مهار نمی‌کند و تکنیک‌های ریلکسیشن تنگی فیزیکی را رفع نمی‌کنند.</li>
+                    <li><strong>نکته طلایی بورد:</strong> هرگونه دستکاری ترومازا لانهگزینی را مهار می‌کند. سرویکس باید یک سیکل قبل دیلاته شود.</li>
+                </ul>`
+            },
+            {
+                title: "سؤال ۲۱ (تالیفی)",
+                text: "خانم ۲۵ ساله‌ای با آمنوره اولیه و نازایی ۲ ساله مراجعه کرده است. در بررسی هورمونی، $FSH=3.5$ و $LH=2.5$ می‌باشد. سایر بررسی‌های انجام شده نرمال می‌باشد. مناسب‌ترین اقدام درمانی کدام است؟",
+                options: [
+                    "الف) لتروزول همراه با تریگر HCG و شیاف پروژسترون",
+                    "ب) FSH همراه با تریگر HCG و شیاف پروژسترون",
+                    "ج) کلومیفن همراه با منوتروپین روز ۸ و ۹ و شیاف پروژسترون",
+                    "د) منوتروپین همراه با تریگر HCG و شیاف پروژسترون"
+                ],
+                correctIndex: 3,
+                explanation: `<ul>
+                    <li>بیمار مبتلا به هیپوگنادیسم هیپوگنادوتروپیک (نارسایی مرکزی) است. تخمدان‌ها سالم‌اند اما هیپوفیز گنادوتروپین ترشح نمی‌کند.</li>
+                    <li>داروهای خوراکی (کلومیفن/لتروزول) که به محور فعال مرکزی نیاز دارند، در این حالت کاملاً بی‌اثر هستند.</li>
+                    <li>درمان انتخابی، استفاده از <strong>منوتروپین (حاوی $FSH$ و $LH$ اگزوژن)</strong> جهت رشد فولیکول است.</li>
+                    <li>تجویز $FSH$ خالص به تنهایی کافی نیست، زیرا بلوغ نهایی نیازمند حضور $LH$ است. تزریق HCG و شیاف پروژسترون نیز جهت پیک نهایی و حمایت لوتئال الزامی است.</li>
+                </ul>`
+            },
+            {
+                title: "سؤال ۲۲ (تالیفی)",
+                text: "خانم ۳۲ ساله‌ای با نازایی دو ساله و آمنوره مراجعه کرده است. در آزمایشات، TSH و پرولاکتین نرمال است. $FSH=4 \\text{ IU/L}$ و استرادیول $20 \\text{ pg/mL}$ می‌باشد. اسپرم آنالیز همسر نرمال است. تجویز کدام‌یک از داروهای زیر صحیح است؟",
+                options: [
+                    "الف) کلومیفن",
+                    "ب) لتروزول",
+                    "ج) متفورمین",
+                    "د) گنادوتروپین"
+                ],
+                correctIndex: 3,
+                explanation: `<ul>
+                    <li>ترکیب $FSH$ نرمال متمایل به پایین در حضور استرادیول به شدت سرکوب‌شده ($20 \\text{ pg/mL}$)، بیانگر آمنوره هیپوتالاموسی عملکردی (WHO Group I) است.</li>
+                    <li>درمان‌های ضد استروژن خوراکی (کلومیفن/لتروزول) در غیاب عملکرد هیپوتالاموس با شکست قطعی همراه هستند.</li>
+                    <li><strong>نکته طلایی بورد:</strong> هرجا استرادیول به شدت سرکوب شده باشد، فارغ از عدد $FSH$، درمان انتخابی القای تخمک‌گذاری تجویز مستقیم <strong>گنادوتروپین</strong> است.</li>
+                </ul>`
+            },
+            {
+                title: "سؤال ۲۳ (تالیفی)",
+                text: "خانم ۲۵ ساله‌ای جهت مشاوره در مورد حاملگی مراجعه کرده است. در بررسی‌های انجام شده، ذخیره تخمدان کم و $FSH=15$ گزارش شده است. وی نگران بروز مشکل کروموزومی در جنین می‌باشد. در مشاوره ژنتیک وی، کدام‌یک از توضیحات زیر صحیح است؟",
+                options: [
+                    "الف) خطر سقط افزایش نمی‌یابد.",
+                    "ب) خطر سندرم داون بیشتر می‌شود.",
+                    "ج) خطر سندرم داون کمتر می‌شود.",
+                    "د) خطر تریزومی ۱۳ تغییر نمی‌کند."
+                ],
+                correctIndex: 3,
+                explanation: `<ul>
+                    <li>کاهش ذخیره تخمدانی (POI) در سنین پایین بازتاب‌دهنده کاهش شدید «کمیت» تخمک‌هاست، اما تعیین‌کننده «کیفیت» آن‌ها نیست.</li>
+                    <li>کیفیت تخمک و پتانسیل بروز آنوپلوئیدی‌های کروموزومی (مثل تریزومی ۱۳ و سندرم داون) <strong>صرفاً تابع «سن تقویمی»</strong> بیمار است.</li>
+                    <li>در یک خانم جوان ۲۵ ساله، تخمک‌های باقیمانده کیفیت بسیار بالایی دارند و خطر ناهنجاری‌های ژنتیکی جنین نسبت به جمعیت هم‌سن خود <strong>تغییر نکرده و افزایش نمی‌یابد</strong>.</li>
+                </ul>`
+            },
+            {
+                title: "سؤال ۲۴ (تالیفی)",
+                text: "در بررسی یک خانم ۲۵ ساله با آمنوره ثانویه ناشی از نارسایی اولیه تخمدان (POI) با پاتوژنز خودایمنی، جهت بررسی نارسایی همزمان غده آدرنال، سطح کورتیزول ساعت ۸ صبح اندازه‌گیری شده و $10 \\text{ mg/dl}$ گزارش شده است. مناسب‌ترین اقدام بعدی کدام است؟",
+                options: [
+                    "الف) تکرار آزمایش کورتیزول به صورت دوره‌ای",
+                    "ب) شروع فوری درمان جایگزینی نارسایی آدرنال",
+                    "ج) انجام تست تحریک ACTH",
+                    "د) بررسی سطح آنتی‌بادی ضد ۲۱-هیدروکسیلاز"
+                ],
+                correctIndex: 2,
+                explanation: `<ul>
+                    <li>در مبتلایان به POI خودایمنی، غربالگری نارسایی آدرنال جهت پیشگیری از بحران‌های ادیسونین حیاتی است.</li>
+                    <li>اگر سطح کورتیزول بازال ساعت ۸ صبح در محدوده بینابینی و مبهم باشد (بین $3$ تا $19 \\text{ mg/dl}$؛ مانند عدد ۱۰)، تشخیص قطعی نیست و پیگیری دوره‌ای خطرناک است.</li>
+                    <li><strong>استاندارد طلایی</strong> و الزامی رفرنس در این موارد، انجام <strong>تست تحریک ACTH</strong> (ACTH Stimulation Test) است تا پیشگیری قطعی از بحران آدرنال صورت گیرد.</li>
+                </ul>`
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let selectedOptionIndex = null;
+        let isAnswerSubmitted = false;
+
+        const elTitle = document.getElementById('q-title');
+        const elCounter = document.getElementById('q-counter');
+        const elText = document.getElementById('q-text');
+        const elOptions = document.getElementById('q-options');
+        const btnSubmit = document.getElementById('btn-submit');
+        const btnPrev = document.getElementById('btn-prev');
+        const btnNext = document.getElementById('btn-next');
+        const elExplanation = document.getElementById('q-explanation');
+        const elExplanationText = document.getElementById('explanation-text');
+
+        function renderQuestion() {
+            try {
+                const q = questions[currentQuestionIndex];
+                
+                elTitle.innerText = q.title;
+                elCounter.innerText = `${currentQuestionIndex + 1} / ${questions.length}`;
+                elText.innerHTML = q.text;
+
+                elOptions.innerHTML = '';
+                q.options.forEach((opt, index) => {
+                    const optEl = document.createElement('div');
+                    optEl.className = 'option-card border-2 border-slate-200 rounded-xl p-4 md:p-5 text-slate-700 font-medium select-none text-base md:text-lg';
+                    optEl.innerText = opt;
+                    optEl.onclick = () => selectOption(index);
+                    elOptions.appendChild(optEl);
+                });
+
+                // Reset states
+                selectedOptionIndex = null;
+                isAnswerSubmitted = false;
+                
+                btnSubmit.disabled = true;
+                elExplanation.classList.add('hidden');
+                
+                updateNavButtons();
+                triggerMathJax();
+            } catch (e) {
+                console.error("Rendering error:", e);
+            }
+        }
+
+        function selectOption(index) {
+            if (isAnswerSubmitted) return;
+
+            selectedOptionIndex = index;
+            btnSubmit.disabled = false;
+
+            const optionsNodes = elOptions.children;
+            for (let i = 0; i < optionsNodes.length; i++) {
+                optionsNodes[i].classList.remove('selected-option');
+                if (i === index) {
+                    optionsNodes[i].classList.add('selected-option');
+                }
+            }
+        }
+
+        function submitAnswer() {
+            if (selectedOptionIndex === null || isAnswerSubmitted) return;
+            
+            const q = questions[currentQuestionIndex];
+            const optionsNodes = elOptions.children;
+
+            isAnswerSubmitted = true;
+            btnSubmit.disabled = true;
+
+            for (let i = 0; i < optionsNodes.length; i++) {
+                optionsNodes[i].classList.add('disabled');
+                optionsNodes[i].classList.remove('selected-option');
+                
+                if (i === q.correctIndex) {
+                    optionsNodes[i].classList.add('correct-option');
+                } else if (i === selectedOptionIndex) {
+                    optionsNodes[i].classList.add('wrong-option');
+                } else {
+                    optionsNodes[i].style.opacity = '0.4';
+                }
+            }
+
+            elExplanationText.innerHTML = q.explanation;
+            elExplanation.classList.remove('hidden');
+            
+            triggerMathJax();
+        }
+
+        function prevQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                renderQuestion();
+            }
+        }
+
+        function nextQuestion() {
+            if (currentQuestionIndex < questions.length - 1) {
+                currentQuestionIndex++;
+                renderQuestion();
+            }
+        }
+
+        function updateNavButtons() {
+            btnPrev.disabled = currentQuestionIndex === 0;
+            btnNext.disabled = currentQuestionIndex === questions.length - 1;
+        }
+
+        function triggerMathJax() {
+            if (window.MathJax && window.MathJax.typesetPromise) {
+                window.MathJax.typesetPromise().catch((err) => console.log('MathJax error:', err.message));
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderQuestion();
+        });
+    </script>
+</body>
+</html>
